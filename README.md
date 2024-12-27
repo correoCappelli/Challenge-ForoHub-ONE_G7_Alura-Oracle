@@ -6,29 +6,21 @@
 > PORT ----  por defecto 8080
 
 
-# SUMARIO
-
-- [URL BASE](#url-base)
-    - [http//:localhost:3008/api/peliculas](#httplocalhost3008apipeliculas)
-    - [http//:localhost:3008/api/peliculas/vistas](#httplocalhost3008apipeliculasvistas)
-    - [http//:localhost:3008/api/peliculas/poster](#httplocalhost3008apipeliculasposter)
-- [SUMARIO](#sumario)
-  - [Introduccion](#introduccion)
-  - [Instalacion](#instalacion)
-  - [EndPoints](#endpoints)
-    - [catalogo](#catalogo)
-    - [vistas](#vistas)
-    - [EJS](#ejs)
-  - [Codigos de PUT y POST](#codigos-de-put-y-post)
-  - [Variables de Entorno (.Env)](#variables-de-entorno-env)
-  - [Configuracion Acceso a MySQL](#configuracion-acceso-a-mysql)
-  - [Asociaciones de SEQUELIZE](#asociaciones-de-sequelize)
-  - [Plantillas EJS y carpeta de Posters](#plantillas-ejs-y-carpeta-de-posters)
-
-
 ## Introduccion
 
+Es un Foro de topicos y respuestas . Los usuarios pueden responder hasta 2 veces por topico , siempre que este se encuentre ACTIVO. Challenge ONE Alura Oracle G7 
 
+Profesores :
+
+- Génesys Rondón
+
+- Diego Arguelles Rojas
+
+- Eric Monné Fraga de Oliveira
+
+- Bruno Darío Fernández Ellerbach
+
+- Luri, la IA de Alura
 
 ## Instalacion
 
@@ -233,3 +225,69 @@ formato JSON para PUT de actualizacion de topicos :
 	</dependencies>
 ```
 
+## Tests
+
+```Java
+class UsuarioRepositoryTest {
+    @Autowired
+    UsuarioRepository usuarioRepository;
+    @Test
+    @DisplayName("comprueba que se creo el usuario admin@gmail.com que se utiliza para obtener el Token en la ruta de LOGIN")
+    public void testVerSiSeCreaElUsuarioAdminParaLosLogin(){
+
+        Usuario admin= (Usuario) usuarioRepository.findUsuarioByCorreoElectronico("admin@gmail.com");
+        assertNotNull(admin,"el administrador admin@gmail.com tiene que existir");
+
+    }
+}
+```
+
+```Java
+public class TopicoRepositoryTest {
+    @Autowired
+    TopicoRepository topicoRepository;
+    @Autowired
+    UsuarioRepository usuarioRepository;
+    @Autowired
+    CursoRepository cursoRepository;
+
+
+    @Test
+    @DisplayName("crea un  nuevo topico completo y luego hace la busqueda del mismo")
+    public void testSalvarYBuscarUnTopicoDePrueba(){
+
+        DatosRegistroUsuario usuarioTest=new DatosRegistroUsuario(0,"usuario Test","test@gmail.com","testcontasenia");
+        Usuario usuarioTestEntity=new Usuario(usuarioTest);
+        DatosRegistroCurso cursoTest=new DatosRegistroCurso(0,"curso Test","categoria Test");
+        Curso cursoTestEntity=new Curso(cursoTest);
+        DatosRegistroTopico topicoTest = new DatosRegistroTopico(0,"topico test","mensaje test","22/22/22","ACTIVO",usuarioTest,cursoTest);
+        Topico topico=new Topico(topicoTest);
+
+        usuarioTestEntity.addTopico(topico);
+        topico.setAutor(usuarioTestEntity);
+
+        //var psw=usuarioTestEntity.getContrasenia();
+        //psw=passwordEncoder.encode(psw);
+        //usuarioTestEntity.setContrasenia();
+
+        usuarioRepository.save(usuarioTestEntity);
+        topicoRepository.save(topico);
+
+        cursoTestEntity.addTopico(topico);
+        topico.setCurso(cursoTestEntity);
+        cursoRepository.save(cursoTestEntity);
+        Topico topicoSalvado=topicoRepository.save(topico);
+
+        assertThat(topicoSalvado).isNotNull();
+        assertThat(topicoSalvado.getId()).isNotNull();
+
+        Topico topicoBuscar=topicoRepository.findById(topicoSalvado.getId())
+                .orElseThrow(()->new EntityNotFoundException());
+
+        assertThat(topicoBuscar).isNotNull();
+        assertThat(topicoBuscar.getTitulo()).isEqualTo("topico test");
+        assertThat(topicoBuscar.getMensaje()).isEqualTo("mensaje test");
+    }
+}
+
+```
