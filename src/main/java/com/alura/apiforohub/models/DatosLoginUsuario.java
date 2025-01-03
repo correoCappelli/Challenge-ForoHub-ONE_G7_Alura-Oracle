@@ -9,7 +9,8 @@ public record DatosLoginUsuario(
         String nombre,
         @Email
         String correoElectronico,
-        String contrasenia
+        String contrasenia,
+        Roles rol
 ) {
 
 }

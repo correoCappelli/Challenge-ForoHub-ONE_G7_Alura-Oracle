@@ -1,4 +1,7 @@
 package com.alura.apiforohub.seguridad;
 
-public record DatosJWTToken(String jwtToken) {
+public record DatosJWTToken(
+        String jwtToken
+
+) {
 }

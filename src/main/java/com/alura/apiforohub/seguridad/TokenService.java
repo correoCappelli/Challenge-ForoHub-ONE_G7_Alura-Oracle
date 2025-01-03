@@ -6,6 +6,7 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -15,13 +16,15 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
 
+
+
 @Service
 public class TokenService {
 
     @Value("${api.security.secret}")
     private String apiSecret;
 
-    public String generarToken (Usuario usuario){
+    public String generarToken (Usuario usuario,String rol){
         try {
             //el secret se deja sin codificar por fines didacticos
             Algorithm algorithm = Algorithm.HMAC256(apiSecret);
@@ -29,6 +32,7 @@ public class TokenService {
                     .withIssuer("auth0 & One forohub")
                     .withSubject(usuario.getCorreoElectronico())
                     .withClaim("ID",usuario.getId())
+                    .withClaim("ROL",rol)
                     .withExpiresAt(generarFechaDeExpiracion())
                     .sign(algorithm);
         } catch (JWTCreationException exception){
@@ -62,4 +66,22 @@ public class TokenService {
         }
         return verifier.getSubject();
     }
-}
+
+
+        public String getClaim(String token, String claimName) {
+            try {
+                Algorithm algorithm = Algorithm.HMAC256(apiSecret);
+                JWTVerifier verifier = JWT.require(algorithm)
+                        .withIssuer("auth0 & One forohub")
+                        .build();
+                DecodedJWT jwt = verifier.verify(token);
+                return jwt.getClaim(claimName).asString();
+            } catch (JWTVerificationException exception) {
+                throw new RuntimeException("Error verifying JWT token", exception);
+            }
+        }
+
+    }
+
+
+

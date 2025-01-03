@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -104,6 +105,7 @@ public class TopicoController {
             return ResponseEntity.ok(topicoRepositorio.findAll(paginacion).map(DatosListadoTopico::new));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/topicos/{id}")
     @Transactional
     public ResponseEntity actualizarTopicoPorId(@PathVariable Long id, @RequestBody @Valid DatosActualizarTopico datosActualizarTopico){
@@ -113,6 +115,7 @@ public class TopicoController {
             return ResponseEntity.ok(new DatosListadoTopico(topico));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/topicos/{id}")
     @Transactional
     public ResponseEntity borrarTopicoPorId(@PathVariable Long id) {

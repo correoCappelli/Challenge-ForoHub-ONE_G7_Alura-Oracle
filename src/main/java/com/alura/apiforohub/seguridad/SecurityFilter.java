@@ -8,12 +8,15 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.hibernate.annotations.Filter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
+
 
 @Component
 public class SecurityFilter extends OncePerRequestFilter {
@@ -45,7 +48,11 @@ public class SecurityFilter extends OncePerRequestFilter {
             var subject=tokenService.getSubject(tokenRequest);
             if(subject!=null){
                 var usuario=usuarioRepository.findUsuarioByCorreoElectronico(subject);
-                var authentication=new UsernamePasswordAuthenticationToken(usuario,null,usuario.getAuthorities());
+                var rol=tokenService.getClaim(tokenRequest,"ROL");
+                System.out.println("El ROL ingresado es de " + rol);
+                System.out.println("El rol de ADMIN es el unico con acceso a rutas de PUT o DELETE");
+                var authorities = List.of(new SimpleGrantedAuthority("ROLE_" + rol));
+                var authentication=new UsernamePasswordAuthenticationToken(usuario,null,authorities);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
             }
