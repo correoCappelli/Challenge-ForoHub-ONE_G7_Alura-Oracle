@@ -31,7 +31,7 @@ public class ErrorHandler {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<?> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
         Map<String, String> errorDetails = new HashMap<>();
-        errorDetails.put("error", "Invalid JSON input");
+        errorDetails.put("error", "revisar el JSON ingresado");
         errorDetails.put("message", "Unicos valores aceptados son : [USER, ADMIN]");
         return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
     }

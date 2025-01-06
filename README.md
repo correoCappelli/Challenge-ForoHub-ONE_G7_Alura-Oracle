@@ -8,7 +8,10 @@
 
 ## Introduccion
 
-Es un Foro de topicos y respuestas . Los usuarios pueden responder hasta 2 veces por topico , siempre que este se encuentre ACTIVO. Challenge ONE Alura Oracle G7 
+Es un Foro de topicos y respuestas . Los usuarios pueden responder hasta 2 veces por topico , siempre que este se encuentre ACTIVO. 
+Las acciones de DELETE y PUT de un Topico solamente pueden realizarse con usuarios que han realizado el LOGIN con el **Rol** de **ADMIN**
+
+*Challenge ONE Alura Oracle G7*
 
 Profesores :
 
@@ -35,7 +38,7 @@ Profesores :
 * Setear las variables de usuario / contrasenia de la base de datos MySQL en 
 > application.properties
 * al lanzar el servidor se ejecutan las migraciones y se crea un usuario admin 
-  para poder hacer el login inicial. La clave **admin** se migra encriptada 
+  para poder hacer el login inicial. La contrasenia **admin** se migra encriptada 
   con Bcrypt hash
 
 > V5__insert-table-autores.sql
@@ -44,12 +47,17 @@ Profesores :
   VALUES (1, 'admin', 'admin@gmail.com', '2a\$12\$ReXJJVNNAjRha1.JNU.2B.0TfXQfG7qBPDzK52jm0B5h40HttyYOy');
 
 * postear en la ruta de LOGIN con el usuario y obtener el JWToken para agregar a las web service de INSOMNIA o POSTMAN 
-  
+  > - El campo Rol solamente acepta valores ADMIN y USER
+  > - El rol de ADMIN es el unico que puede realizar DELETE o PUT de un Topico (se utilizaron GrantedAuthority y @PreAuthorize("hasRole('ADMIN')") emn estos endpoints)
+  > - Recordar que el usuario admin@gmail.com ya se crea al lanzarse el proyecto (hay un test de Junit que lo comprueba)
+
+
  ```json
- {
-	"nombre" : "admin",
-	"correoElectronico" : "admin@gmail.com",
-	"contrasenia" : "admin"
+{
+  "nombre" : "admin",
+  "correoElectronico" : "admin@gmail.com",
+  "contrasenia" : "admin",
+  "rol" : "ADMIN"
 }
  ```
 * agregar el JWToken en las variables de entorno de INSOMNIA o POSTMAN para autorizar cada ruta a probar
@@ -84,7 +92,8 @@ formato JSON para LOGIN de usuario :
 {
   "nombre" : "admin",
   "correoElectronico" : "admin@gmail.com",
-  "contrasenia" : "admin"
+  "contrasenia" : "admin",
+  "rol" : "USER"
 }
 ```
 formato JSON para POST de topicos :
@@ -151,78 +160,79 @@ formato JSON para PUT de actualizacion de topicos :
 ## Dependencias instaladas
 
 ```XML
-<dependencies>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-jpa</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-security</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.flywaydb</groupId>
-			<artifactId>flyway-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.flywaydb</groupId>
-			<artifactId>flyway-mysql</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-devtools</artifactId>
-			<scope>runtime</scope>
-			<optional>true</optional>
-		</dependency>
-		<dependency>
-			<groupId>com.mysql</groupId>
-			<artifactId>mysql-connector-j</artifactId>
-			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<optional>true</optional>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-security</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-validation</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.auth0</groupId>
-			<artifactId>java-jwt</artifactId>
-			<version>4.2.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springdoc</groupId>
-			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-			<version>2.5.0</version>
-		</dependency>
+	<dependencies>
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-jpa</artifactId>
+  </dependency>
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-security</artifactId>
+  </dependency>
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+  </dependency>
+  <dependency>
+    <groupId>org.flywaydb</groupId>
+    <artifactId>flyway-core</artifactId>
+  </dependency>
+  <dependency>
+    <groupId>org.flywaydb</groupId>
+    <artifactId>flyway-mysql</artifactId>
+  </dependency>
+
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-devtools</artifactId>
+    <scope>runtime</scope>
+    <optional>true</optional>
+  </dependency>
+  <dependency>
+    <groupId>com.mysql</groupId>
+    <artifactId>mysql-connector-j</artifactId>
+    <scope>runtime</scope>
+  </dependency>
+  <dependency>
+    <groupId>org.projectlombok</groupId>
+    <artifactId>lombok</artifactId>
+    <optional>true</optional>
+  </dependency>
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-test</artifactId>
+    <scope>test</scope>
+  </dependency>
+  <dependency>
+    <groupId>org.springframework.security</groupId>
+    <artifactId>spring-security-test</artifactId>
+    <scope>test</scope>
+  </dependency>
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-security</artifactId>
+  </dependency>
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-validation</artifactId>
+  </dependency>
+  <dependency>
+    <groupId>com.auth0</groupId>
+    <artifactId>java-jwt</artifactId>
+    <version>4.2.0</version>
+  </dependency>
+  <dependency>
+    <groupId>org.springdoc</groupId>
+    <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+    <version>2.5.0</version>
+  </dependency>
   <dependency>
     <groupId>org.assertj</groupId>
     <artifactId>assertj-core</artifactId>
     <version>3.20.2</version>
     <scope>test</scope>
   </dependency>
-	</dependencies>
+</dependencies>
 ```
 
 ## Tests
